@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Preventivo Viaggio Camionistico | Calcolo km, costi, carburante e telepass</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+        body {
+            background: #eef2f5;
+            padding: 24px 16px;
+        }
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 1.9rem;
+            color: #1a3e60;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        h1 small {
+            font-size: 0.8rem;
+            font-weight: normal;
+            background: #d9e6f2;
+            padding: 6px 12px;
+            border-radius: 30px;
+            color: #004070;
+        }
+        .sub {
+            color: #2c5a7a;
+            margin-bottom: 28px;
+            border-left: 4px solid #f4b942;
+            padding-left: 16px;
+            font-weight: 500;
+        }
+        .card {
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+            padding: 24px 28px;
+            margin-bottom: 28px;
+            transition: all 0.2s;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 22px;
+            margin-bottom: 28px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .input-group label {
+            font-weight: 700;
+            color: #1e4663;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .input-group label i {
+            font-style: normal;
+            font-weight: normal;
+            font-size: 1.1rem;
+        }
+        input, .cost-input {
+            padding: 12px 16px;
+            border: 1.5px solid #cfdfed;
+            border-radius: 20px;
+            font-size: 1rem;
+            transition: 0.2s;
+            background: #fefefe;
+        }
+        input:focus {
+            outline: none;
+            border-color: #2c7ab1;
+            box-shadow: 0 0 0 3px rgba(44,122,177,0.2);
+        }
+        .cost-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            background: #f8fafc;
+            padding: 18px 20px;
+            border-radius: 24px;
+            margin: 20px 0 12px 0;
+        }
+        .cost-item {
+            flex: 1;
+            min-width: 160px;
+        }
+        .cost-item label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .cost-item input {
+            width: 100%;
+            background: white;
+        }
+        .telepass-rate {
+            display: flex;
+            align-items: flex-end;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            background: #f0f6fa;
+            padding: 14px 20px;
+            border-radius: 20px;
+        }
+        .telepass-rate .input-group {
+            flex: 2;
+            min-width: 180px;
+        }
+        button {
+            background: #1f6392;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 320px;
+            margin-top: 12px;
+        }
+        button:hover {
+            background: #0e4b72;
+            transform: scale(0.98);
+        }
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 22px;
+            margin-top: 20px;
+        }
+        .result-card {
+            background: #f9fdfe;
+            border-radius: 24px;
+            padding: 18px;
+            border: 1px solid #cde3ef;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.02);
+        }
+        .result-card h3 {
+            font-size: 1.2rem;
+            color: #1f4e6e;
+            border-left: 5px solid #f3b33d;
+            padding-left: 12px;
+            margin-bottom: 16px;
+        }
+        .detail-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            border-bottom: 1px dashed #d4e2ec;
+            padding-bottom: 6px;
+        }
+        .total-line {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #1a4c6e;
+            margin-top: 12px;
+            border-top: 2px solid #cbdbe2;
+            padding-top: 12px;
+        }
+        .badge {
+            background: #1f6392;
+            color: white;
+            border-radius: 40px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .warning {
+            color: #b34e1a;
+            font-size: 0.8rem;
+            text-align: center;
+            margin-top: 20px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 35px;
+            font-size: 0.75rem;
+            color: #5e7e9e;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-weight: bold;
+            color: #1f6392;
+        }
+        hr {
+            margin: 12px 0;
+        }
+        @media (max-width: 680px) {
+            .card {
+                padding: 18px;
+            }
+            .cost-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>
+        🚛 Preventivo Viaggio Camionistico
+        <small>Scania 560 • Tratte multiple</small>
+    </h1>
+    <div class="sub">
+        📍 Calcolo km reali con Google Maps | Costi per tratte differenziati | Carburante + Telepass orientativo
+    </div>
+
+    <div class="card">
+        <div class="form-grid">
+            <div class="input-group">
+                <label>📍 PARTENZA (vuoto iniziale)</label>
+                <input type="text" id="start" placeholder="es. Milano, Italia" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label>📦 CARICO (inizio carico)</label>
+                <input type="text" id="load" placeholder="es. Bologna, Italia" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label>🏭 SCARICO (destinazione merce)</label>
+                <input type="text" id="unload" placeholder="es. Roma, Italia" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <label>🔁 RIENTRO (base / deposito)</label>
+                <input type="text" id="return" placeholder="es. Milano, Italia" autocomplete="off">
+            </div>
+        </div>
+
+        <!-- Costi per km per le singole tratte -->
+        <div class="cost-row">
+            <div class="cost-item">
+                <label>🚛 Tratta 1 (vuoto) <br> <span style="font-weight:normal">Partenza ➔ Carico</span></label>
+                <input type="number" id="costVuoto" step="0.01" value="1.5" placeholder="€/km">
+            </div>
+            <div class="cost-item">
+                <label>📦 Tratta 2 (carico) <br> <span style="font-weight:normal">Carico ➔ Scarico</span></label>
+                <input type="number" id="costCarico" step="0.01" value="2.2" placeholder="€/km">
+            </div>
+            <div class="cost-item">
+                <label>🔄 Tratta 3 (rientro vuoto) <br> <span style="font-weight:normal">Scarico ➔ Rientro</span></label>
+                <input type="number" id="costRientro" step="0.01" value="1.5" placeholder="€/km">
+            </div>
+        </div>
+
+        <!-- Telepass parametrizzabile (costo medio autostradale) -->
+        <div class="telepass-rate">
+            <div class="input-group" style="flex:2">
+                <label>🛣️ Costo medio Telepass (€/km) - orientativo autostrade</label>
+                <input type="number" id="telepassRate" step="0.01" value="0.32" placeholder="€/km autostrada medio">
+                <small style="color:#4a627a;">Tariffa media per mezzi pesanti su rete autostradale (es. 0,30 - 0,40 €/km)</small>
+            </div>
+            <div class="input-group" style="flex:1">
+                <label>⛽ Prezzo Gasolio (€/L) opzionale</label>
+                <input type="number" id="fuelPrice" step="0.01" value="1.78" placeholder="€/L">
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: center;">
+            <button id="calculateBtn">🧮 CALCOLA PREVENTIVO COMPLETO</button>
+        </div>
+    </div>
+
+    <!-- AREA RISULTATI -->
+    <div id="resultsArea" style="display: none;">
+        <div class="results" id="resultsContainer"></div>
+    </div>
+    <div id="loadingMessage" class="loading" style="display: none;">⏳ Calcolo distanze tramite Google Maps... attendere</div>
+    <div id="errorMessage" style="color: #c7362b; text-align: center; margin-top: 12px;"></div>
+    <footer>
+        🗺️ Le distanze vengono calcolate in tempo reale con Google Maps (stradale). Consumo carburante su Scania 560: media 34 L/100km.<br>
+        Telepass: stima su percorrenza totale x tariffa media autostradale per mezzi pesanti. Modificabile per adattare tratte extraurbane.
+    </footer>
+</div>
+
+<script>
+    // API KEY fornita
+    const API_KEY = "AIzaSyAI1p00jSenVAcgtHYfKskdQokCgJwljVs";
+
+    // Variabili globali per autocomplete
+    let autocompleteStart, autocompleteLoad, autocompleteUnload, autocompleteReturn;
+
+    // Funzione per inizializzare gli autocomplete dopo caricamento API
+    function initAutocomplete() {
+        const startInput = document.getElementById('start');
+        const loadInput = document.getElementById('load');
+        const unloadInput = document.getElementById('unload');
+        const returnInput = document.getElementById('return');
+
+        if (startInput) autocompleteStart = new google.maps.places.Autocomplete(startInput, { componentRestrictions: { country: [] } });
+        if (loadInput) autocompleteLoad = new google.maps.places.Autocomplete(loadInput, { componentRestrictions: { country: [] } });
+        if (unloadInput) autocompleteUnload = new google.maps.places.Autocomplete(unloadInput, { componentRestrictions: { country: [] } });
+        if (returnInput) autocompleteReturn = new google.maps.places.Autocomplete(returnInput, { componentRestrictions: { country: [] } });
+    }
+
+    // Funzione per ottenere la distanza in km tra due indirizzi (promise)
+    function getDistanceBetween(origin, destination) {
+        return new Promise((resolve, reject) => {
+            if (!origin || !destination || origin.trim() === "" || destination.trim() === "") {
+                reject(new Error("Origine o destinazione vuota"));
+                return;
+            }
+            const service = new google.maps.DistanceMatrixService();
+            service.getDistanceMatrix(
+                {
+                    origins: [origin],
+                    destinations: [destination],
+                    travelMode: google.maps.TravelMode.DRIVING,
+                    unitSystem: google.maps.UnitSystem.METRIC,
+                    avoidHighways: false,
+                    avoidTolls: false
+                },
+                (response, status) => {
+                    if (status === "OK") {
+                        const element = response.rows[0].elements[0];
+                        if (element.status === "OK") {
+                            const distanceMeters = element.distance.value;
+                            const km = distanceMeters / 1000;
+                            resolve(km);
+                        } else {
+                            reject(new Error(`Percorso non trovato: ${element.status}`));
+                        }
+                    } else {
+                        reject(new Error(`Errore DistanceMatrix: ${status}`));
+                    }
+                }
+            );
+        });
+    }
+
+    // Calcolo principale
+    async function calculateFullTrip() {
+        // Nascondi errori e risultati precedenti
+        document.getElementById('errorMessage').innerHTML = "";
+        const resultsDiv = document.getElementById('resultsArea');
+        resultsDiv.style.display = "none";
+        const loadingDiv = document.getElementById('loadingMessage');
+        
+        // Ottieni indirizzi
+        const startAddr = document.getElementById('start').value.trim();
+        const loadAddr = document.getElementById('load').value.trim();
+        const unloadAddr = document.getElementById('unload').value.trim();
+        const returnAddr = document.getElementById('return').value.trim();
+
+        if (!startAddr || !loadAddr || !unloadAddr || !returnAddr) {
+            document.getElementById('errorMessage').innerHTML = "⚠️ Compila tutti e 4 gli indirizzi (partenza, carico, scarico, rientro).";
+            return;
+        }
+
+        // Ottieni costi per km
+        let costVuoto = parseFloat(document.getElementById('costVuoto').value);
+        let costCarico = parseFloat(document.getElementById('costCarico').value);
+        let costRientro = parseFloat(document.getElementById('costRientro').value);
+        let telepassRate = parseFloat(document.getElementById('telepassRate').value);
+        let fuelPrice = parseFloat(document.getElementById('fuelPrice').value);
+
+        if (isNaN(costVuoto)) costVuoto = 1.5;
+        if (isNaN(costCarico)) costCarico = 2.2;
+        if (isNaN(costRientro)) costRientro = 1.5;
+        if (isNaN(telepassRate) || telepassRate <= 0) telepassRate = 0.32;
+        if (isNaN(fuelPrice)) fuelPrice = 1.78;
+
+        loadingDiv.style.display = "block";
+
+        try {
+            // Esegui 3 richieste parallele per le tratte
+            const [kmVuoto, kmCarico, kmRientro] = await Promise.all([
+                getDistanceBetween(startAddr, loadAddr),
+                getDistanceBetween(loadAddr, unloadAddr),
+                getDistanceBetween(unloadAddr, returnAddr)
+            ]);
+
+            // Calcoli principali
+            const totaleKm = kmVuoto + kmCarico + kmRientro;
+            
+            // Costo totale per tratte differenziate
+            const costoTotaleTratte = (kmVuoto * costVuoto) + (kmCarico * costCarico) + (kmRientro * costRientro);
+            
+            // Ore di guida: totaleKm / 70 km/h
+            const oreGuida = totaleKm / 70;
+            const oreInt = Math.floor(oreGuida);
+            const minuti = Math.round((oreGuida - oreInt) * 60);
+            const oreFormattate = `${oreInt}h ${minuti}m`; 
+            
+            // Consumo carburante Scania 560: 34 L/100km => 0.34 L/km
+            const consumoLitri = totaleKm * 0.34;
+            const costoCarburante = consumoLitri * fuelPrice;
+            
+            // Telepass orientativo: totaleKm * tariffa media autostradale
+            const costoTelpass = totaleKm * telepassRate;
+            
+            // NUOVO CALCOLO TOTALE: trasporto - (carburante + telepass)
+            const totaleFinale = costoTotaleTratte - (costoCarburante + costoTelpass);
+            
+            // Preparazione HTML risultati
+            const resultsHtml = `
+                <div class="result-card">
+                    <h3>📏 PERCORRENZA DETTAGLIO</h3>
+                    <div class="detail-line"><span>🚛 Partenza → Carico (vuoto):</span><strong>${kmVuoto.toFixed(2)} km</strong></div>
+                    <div class="detail-line"><span>📦 Carico → Scarico (carico):</span><strong>${kmCarico.toFixed(2)} km</strong></div>
+                    <div class="detail-line"><span>🔄 Scarico → Rientro (rientro vuoto):</span><strong>${kmRientro.toFixed(2)} km</strong></div>
+                    <div class="total-line"><span>🔁 TOTALE PERCORRENZA:</span><strong>${totaleKm.toFixed(2)} km</strong></div>
+                </div>
+                <div class="result-card">
+                    <h3>💰 COSTI OPERATIVI (per km differenziati)</h3>
+                    <div class="detail-line"><span>Tratta vuoto (${kmVuoto.toFixed(1)} km × ${costVuoto.toFixed(2)} €/km):</span><strong>${(kmVuoto * costVuoto).toFixed(2)} €</strong></div>
+                    <div class="detail-line"><span>Tratta carico (${kmCarico.toFixed(1)} km × ${costCarico.toFixed(2)} €/km):</span><strong>${(kmCarico * costCarico).toFixed(2)} €</strong></div>
+                    <div class="detail-line"><span>Tratta rientro vuoto (${kmRientro.toFixed(1)} km × ${costRientro.toFixed(2)} €/km):</span><strong>${(kmRientro * costRientro).toFixed(2)} €</strong></div>
+                    <div class="total-line"><span>💶 COSTO TOTALE TRASPORTI:</span><strong>${costoTotaleTratte.toFixed(2)} €</strong></div>
+                </div>
+                <div class="result-card">
+                    <h3>⏱️ TEMPO DI GUIDA</h3>
+                    <div class="detail-line"><span>Velocità media commerciale:</span><strong>70 km/h</strong></div>
+                    <div class="detail-line"><span>Totale km percorso:</span><strong>${totaleKm.toFixed(2)} km</strong></div>
+                    <div class="total-line"><span>🕒 ORE TOTALI DI GUIDA:</span><strong>${oreFormattate} (${oreGuida.toFixed(2)} h)</strong></div>
+                </div>
+                <div class="result-card">
+                    <h3>⛽ CONSUMO CARBURANTE (Scania 560)</h3>
+                    <div class="detail-line"><span>Consumo medio:</span><strong>34 L/100km</strong></div>
+                    <div class="detail-line"><span>Gasolio consumato:</span><strong>${consumoLitri.toFixed(1)} litri</strong></div>
+                    <div class="detail-line"><span>Prezzo gasolio (€/L):</span><strong>${fuelPrice.toFixed(2)} €/L</strong></div>
+                    <div class="total-line"><span>💰 Costo carburante stimato:</span><strong>${costoCarburante.toFixed(2)} €</strong></div>
+                </div>
+                <div class="result-card">
+                    <h3>🛣️ TELEPASS ORIENTATIVO</h3>
+                    <div class="detail-line"><span>Tariffa media autostradale (mezzi pesanti):</span><strong>${telepassRate.toFixed(2)} €/km</strong></div>
+                    <div class="detail-line"><span>Percorso totale utilizzato per stima:</span><strong>${totaleKm.toFixed(2)} km</strong></div>
+                    <div class="total-line"><span>🎫 COSTO TELEPASS PREVISTO:</span><strong>${costoTelpass.toFixed(2)} €</strong></div>
+                    <div style="margin-top:10px; font-size:0.7rem; background:#eef3fc; padding:6px; border-radius:12px;">* Stima su percorrenza totale x tariffa media. Modificabile nel campo "costo medio Telepass" per adattarlo a tratte autostradali effettive.</div>
+                </div>
+                <div class="result-card">
+                    <h3>📊 RIEPILOGO FINANZIARIO</h3>
+                    <div class="detail-line"><span>Costo totale tratte (vuoto/carico/rientro):</span><strong>${costoTotaleTratte.toFixed(2)} €</strong></div>
+                    <div class="detail-line"><span>Costo carburante stimato:</span><strong>${costoCarburante.toFixed(2)} €</strong></div>
+                    <div class="detail-line"><span>Costo Telepass orientativo:</span><strong>${costoTelpass.toFixed(2)} €</strong></div>
+                    <div class="total-line"><span>💶 TOTALE PREVENTIVO (trasporto − (carburante+telepass)):</span><strong>${totaleFinale.toFixed(2)} €</strong></div>
+                    <div style="margin-top:8px; font-size:0.7rem;">* Formula: costo tratte − (carburante + telepass). Modifica i costi/km e le tariffe per adattare il calcolo.</div>
+                </div>
+            `;
+            
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = resultsHtml;
+            resultsDiv.style.display = "block";
+            loadingDiv.style.display = "none";
+            
+            // scroll ai risultati
+            resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+        } catch (err) {
+            loadingDiv.style.display = "none";
+            console.error(err);
+            let friendlyMsg = "Impossibile calcolare una o più tratte. Verifica gli indirizzi (città complete, località valide) e riprova. ";
+            if (err.message) friendlyMsg += `Dettaglio: ${err.message}`;
+            document.getElementById('errorMessage').innerHTML = `❌ Errore nel calcolo: ${friendlyMsg}`;
+        }
+    }
+
+    // Caricamento script Google Maps con callback
+    function loadGoogleMaps() {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places&callback=initAutocomplete`;
+        script.async = true;
+        script.defer = true;
+        script.onerror = () => {
+            document.getElementById('errorMessage').innerHTML = "❌ Impossibile caricare Google Maps. Controlla la chiave API o la connessione.";
+        };
+        document.head.appendChild(script);
+    }
+
+    // Event listener al caricamento del DOM
+    document.addEventListener('DOMContentLoaded', () => {
+        loadGoogleMaps();
+        
+        // Bottone calcolo
+        const btn = document.getElementById('calculateBtn');
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Controlla se google maps è caricato e disponibile
+            if (typeof google === 'undefined' || !google.maps || !google.maps.DistanceMatrixService) {
+                document.getElementById('errorMessage').innerHTML = "⏳ Google Maps non ancora caricato. Attendi qualche secondo e riprova.";
+                return;
+            }
+            calculateFullTrip();
+        });
+        
+        // Opzionale: premere invio su input per avviare? ma lasciamo pulsante
+    });
+    
+    // fallback se initAutocomplete viene chiamato prima del DOM ready
+    window.initAutocomplete = function() {
+        if (document.getElementById('start')) {
+            initAutocomplete();
+        }
+    };
+    
+    // Esporre per sicurezza
+    window.calculateFullTrip = calculateFullTrip;
+</script>
+</body>
+</html>
